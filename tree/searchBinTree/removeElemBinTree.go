@@ -1,6 +1,6 @@
 package main
 
-// Временная сложность удаления элемента из дерево: 
+// Временная сложность удаления элемента из дерева: 
 
 // Пространственная сложность удаления элемента из дерева: 
 
@@ -11,10 +11,10 @@ package main
 // 3) удаляем из дерева корень - каждое поддерево становится отдельным деревом. 
 // 4) удаляем вершину, у которой есть корень и два ребенка - получаем 3 отдельных дерева. 
 
-// Соответсвенно6 в 3-ем и 4-ом случаях удаляемую вершину необходимо заменить новой вершиной, 
+// Соответсвенно, в 3-ем и 4-ом случаях удаляемую вершину необходимо заменить новой вершиной, 
 // которая обладала бы следующими свойствами: 
 
-// 1) эта вершина больше всех значений в в левом поддереве даляемой вершины. 
+// 1) эта вершина больше всех значений в левом поддереве удаляемой вершины. 
 
 // 2) эта вершина меньше либо равна всем значениям в правом поддереве. 
 
@@ -40,4 +40,38 @@ package main
 
 // 1) Родитель P должен усыновить потомка P: P.parent.right = P.left. 
 
-// 2) Теперь у P нет детей, поэтому можно вернуться к предыдущему алгоритму. 
+// 2) Теперь у P нет детей, поэтому можно вернуться к предыдущему алгоритму.
+
+func findMaxNode(root *Node) *Node {
+	current := root
+	for current.right != nil {
+		current = current.right
+	}
+	return current
+}
+
+func removeElem(root *Node, elem int) *Node {
+	if root == nil  {
+		return nil
+	}
+
+	if root.elem > elem {
+		root.left = removeElem(root.left, elem)
+	} else if root.elem < elem {
+		root.right = removeElem(root.right, elem)
+	} else {
+		if root.left == nil {
+            return root.right
+        } else if root.right == nil {
+            return root.left
+        }
+
+		maxNode := findMaxNode(root.left)
+		
+		root.elem = maxNode.elem
+
+		root.left = removeElem(root.left, maxNode.elem)
+
+	}
+	return root
+}

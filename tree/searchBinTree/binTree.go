@@ -10,3 +10,13 @@ package main
 
 
 // Задание: необходимо по заданным элементам построить бинарное дерево поиска. 
+
+type Node struct {
+	elem int
+	left *Node 
+	right *Node
+}
+
+func NewBinTree() *Node {
+	return &Node{}
+}

@@ -28,4 +28,20 @@ package main
 // 2) Если в дереве есть поддеревья, существенно отличающиеся по высоте, память 
 // будет расходоваться неэффективно, поскольку многие ячейки массива окажутся пустыми. 
 
-func TreeAsSlice() {}
+type Node struct {
+	elem int
+	left *Node 
+	right *Node
+}
+
+
+// как посчитать размер массива? 
+func fillSlice(root *Node, i int, arr []int){
+	if root == nil {
+		return
+	}
+
+	arr[i] = root.elem
+	fillSlice(root.right, 2*i + 1, arr)
+	fillSlice(root.left, 2*i, arr)
+}
