@@ -1,20 +1,76 @@
 package main
 
-// Сложность по времени: O(N logN) - поскольку сложность вставки одного элемента - logN,
-// но добавляется при этом N элементов.
+import (
+	"fmt"
+)
 
-// Сложность по памяти: O(N) - можно реализовать без использования дополнительной памяти.
+// Задание: необходимо реализовать heapSort за О(1) по памяти. 
 
-// Задание: необходимо отсоритировать при помощи heapSort (для сортировки по возрастанию).
-// Лучше реализовать две версии: за O(1) по памяти, за O(N) по памяти.
-// Алгоритм:
+func sortHeap(heap []int, index int) []int {
+	if index == 0 {
+		return heap
+	}
+	parentIndex := (index - 1)/2
 
-// 1) Создадим пустую бинарную неубывающую кучу: min-heap (max-heap для сортировки по убыванию).
+	// если реализуем условие для min-heap, то оно меняется: 
+	// heap[parentIndex] > heap[index], поскольку на вершине 
+	// находится самый большой элемент. 
+	if heap[parentIndex] < heap[index] {
+		heap[parentIndex], heap[index] = heap[index], heap[parentIndex]
+		sortHeap(heap, parentIndex)
+	}
 
-// 2) Будем добавлять по одному все элементы массива,
-// сохраняя свойства кучи. То есть на вершине окажется
-// самый маленький элемент (самый большой элемент
-// для сортировки по возрастанию).
+	return heap
+}
 
-// 3) По очереди будем извлекать из heap-а наиболее приоритетные элементы,
-// удаляя при этом элементы из кучи.
+func maxIndex(heap []int, index int) int {
+	left := 2*index + 1
+	right := 2*index + 2
+	maxIndex := index
+
+	heapLen := len(heap)
+
+	if heapLen > left && heap[left] > heap[maxIndex]  {
+		maxIndex = left
+	}
+
+	if heapLen > right && heap[right] > heap[maxIndex] {
+		maxIndex = right
+	}
+
+	return maxIndex
+}
+
+func sortHeapDown(heap []int, index, indexEnd int) []int {
+	if index > indexEnd {
+		return heap
+	}
+	maxIndex := maxIndex(heap[:indexEnd], index)
+	if maxIndex != index {
+		heap[maxIndex], heap[index] = heap[index], heap[maxIndex]
+		heap = sortHeapDown(heap, maxIndex, indexEnd)
+	}
+
+	return heap
+}
+
+func sortSliceWithHeap(slice []int) []int {
+	for i := 0; i <= len(slice) - 1; i++ {
+		slice = sortHeap(slice, i)
+	}
+	
+	for i := len(slice); i > 1; i-- {
+		slice[0], slice[i-1] = slice[i-1], slice[0]
+		slice = sortHeapDown(slice, 0, i-1)
+	}
+
+	return slice
+
+}
+
+
+func main() {
+	slice := []int{2, 10, 4, 3, 5, 1}
+	slice = sortSliceWithHeap(slice)
+	fmt.Println(slice)
+}

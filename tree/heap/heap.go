@@ -47,5 +47,68 @@ package main
 
 // Сложность удаления: O(logN), где logN - высота кучи
 
+func sortHeap(heap []int, index int) []int {
+	if index == 0 {
+		return heap
+	}
+	parentIndex := (index - 1)/2
+
+	// если реализуем условие для min-heap, то оно меняется: 
+	// heap[parentIndex] > heap[index], поскольку на вершине 
+	// находится самый большой элемент. 
+	if heap[parentIndex] < heap[index] {
+		heap[parentIndex], heap[index] = heap[index], heap[parentIndex]
+		sortHeap(heap, parentIndex)
+	}
+
+	return heap
+}
 
 
+func AddElem( heap []int, elem int) []int {
+	
+	heap = append(heap, elem)
+	heap = sortHeap(heap, len(heap)-1)
+	return heap
+}
+
+func maxIndex(heap []int, index int) int {
+	left := 2*index + 1
+	right := 2*index + 2
+	maxIndex := index
+
+	heapLen := len(heap)
+
+	if heapLen > left && heap[left] > heap[maxIndex]  {
+		maxIndex = left
+	}
+
+	if heapLen > right && heap[right] > heap[maxIndex] {
+		maxIndex = right
+	}
+
+	return maxIndex
+}
+
+func sortHeapDown(heap []int, index int) []int {
+	maxIndex := maxIndex(heap, index)
+	if maxIndex != index {
+		heap[maxIndex], heap[index] = heap[index], heap[maxIndex]
+		heap = sortHeapDown(heap, maxIndex)
+	}
+
+	return heap
+}
+
+func GetElem(heap []int) (int, []int) {
+	if len(heap) == 0 {
+		return -1, heap
+	}
+
+	elem := heap[0]
+	heap[0] = heap[len(heap) - 1]
+	heap = heap[:len(heap) - 1]
+
+	heap = sortHeapDown(heap, 0)
+	return elem, heap
+}
