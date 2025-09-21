@@ -1,76 +1,84 @@
+// Задание: необходимо реализовать heapSort за О(1) по памяти.
+
+// Временная сложность: O(N*logN)
+
+// Пространственная сложность: O(1)
+
+// Основная идея алгоритма заключается в следующем: 
+// 1) Есть метод heapify: 
+// 		1.1) Передается текущий массив, индекс конца, индекс начала сортируемого слайса. 
+// 		1.2) Для каждого текущего элемента смотрим его потомков: левый = 2*current + 1, правый = 2*current + 2
+// 		1.3) Проверяем, что индексы левого и правого элементов входят в рассматриваемый интервал, 
+// 			то есть меньше конца интервала. А также проверяется, что потомки меньше корня. 
+// 		1.4) Если потомки больше корня, то каждый из потомков пытается стать максимальным элементом. 
+// 			После чего элементы меняются местами. 
+// 		1.5) Если текущий максимальный элемент не поменялся, то выходим из цикла. 
+// 		1.6) В ином случае меняем местами корень с его потомком, а затем переходим на новый шаг цикла уже 
+// 			с другим предполагаемым максимальным элементом.
+
+// 2) Сначала heapify применяется ко всем элементам в цикле от середины массива до его начала. 
+// В качестве конца рассматриваемого интервала передается конец сортируемого массива. 
+// n/2 - 1 - это индекс последнего нелистового узла в куче. 
+// 
+// В двоичной куче, представленной в виде массива:
+// 	- Листовые узлы (узлы без потомков) занимают позиции от n/2 до n-1
+// 	- Нелистовые узлы (узлы с потомками) занимают позиции от 0 до n/2 - 1 
+//
+// Поэтому на этом этапе выбирается последний нелистовой узел, а затем начинаем проверять 
+// сверху вниз (то есть что потомки у последнего нелистового узла назначены корректны).   
+// 
+// 3) Затем проходимся с конца массива до его начала:  
+// 		3.1) Меняем местами 0-ой элемент массива с его i-ым. 
+// 		3.2) Применяем heapify к слайсу размером с i-ого элемента по 0.  
+
+
+
 package main
 
-import (
-	"fmt"
-)
+// heapSort выполняет пирамидальную сортировку
+func heapSort(arr []int) {
+	n := len(arr)
 
-// Задание: необходимо реализовать heapSort за О(1) по памяти. 
-
-func sortHeap(heap []int, index int) []int {
-	if index == 0 {
-		return heap
-	}
-	parentIndex := (index - 1)/2
-
-	// если реализуем условие для min-heap, то оно меняется: 
-	// heap[parentIndex] > heap[index], поскольку на вершине 
-	// находится самый большой элемент. 
-	if heap[parentIndex] < heap[index] {
-		heap[parentIndex], heap[index] = heap[index], heap[parentIndex]
-		sortHeap(heap, parentIndex)
+	// Построение max-heap (перегруппировка массива)
+	for i := n/2 - 1; i >= 0; i-- {
+		heapify(arr, n, i)
 	}
 
-	return heap
+	// Извлечение элементов из кучи один за другим
+	for i := n - 1; i > 0; i-- {
+		// Перемещаем текущий корень в конец
+		arr[0], arr[i] = arr[i], arr[0]
+
+		// Вызываем heapify на уменьшенной куче
+		heapify(arr, i, 0)
+	}
 }
 
-func maxIndex(heap []int, index int) int {
-	left := 2*index + 1
-	right := 2*index + 2
-	maxIndex := index
+// heapify преобразует поддерево в max-heap (итеративная версия)
+func heapify(arr []int, n, i int) {
+	current := i
+	for {
+		largest := current     // Инициализируем наибольший элемент как корень
+		left := 2*current + 1  // Левый потомок
+		right := 2*current + 2 // Правый потомок
 
-	heapLen := len(heap)
+		// Если левый потомок существует и больше текущего наибольшего
+		if left < n && arr[left] > arr[largest] {
+			largest = left
+		}
 
-	if heapLen > left && heap[left] > heap[maxIndex]  {
-		maxIndex = left
+		// Если правый потомок существует и больше текущего наибольшего
+		if right < n && arr[right] > arr[largest] {
+			largest = right
+		}
+
+		// Если наибольший элемент не корень
+		if largest == current {
+			break
+		}
+
+		// Меняем местами и продолжаем
+		arr[current], arr[largest] = arr[largest], arr[current]
+		current = largest
 	}
-
-	if heapLen > right && heap[right] > heap[maxIndex] {
-		maxIndex = right
-	}
-
-	return maxIndex
-}
-
-func sortHeapDown(heap []int, index, indexEnd int) []int {
-	if index > indexEnd {
-		return heap
-	}
-	maxIndex := maxIndex(heap[:indexEnd], index)
-	if maxIndex != index {
-		heap[maxIndex], heap[index] = heap[index], heap[maxIndex]
-		heap = sortHeapDown(heap, maxIndex, indexEnd)
-	}
-
-	return heap
-}
-
-func sortSliceWithHeap(slice []int) []int {
-	for i := 0; i <= len(slice) - 1; i++ {
-		slice = sortHeap(slice, i)
-	}
-	
-	for i := len(slice); i > 1; i-- {
-		slice[0], slice[i-1] = slice[i-1], slice[0]
-		slice = sortHeapDown(slice, 0, i-1)
-	}
-
-	return slice
-
-}
-
-
-func main() {
-	slice := []int{2, 10, 4, 3, 5, 1}
-	slice = sortSliceWithHeap(slice)
-	fmt.Println(slice)
 }
