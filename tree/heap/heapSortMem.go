@@ -23,19 +23,18 @@ import (
 // 3) По очереди будем извлекать из heap-а наиболее приоритетные элементы,
 // удаляя при этом элементы из кучи.
 
-
 func sortSliceWithHeapWithMemory(slice []int) []int {
 
-	heap := make([]int, 1, len(slice) - 1)
+	heap := make([]int, 1, len(slice)-1)
 
 	heap[0] = slice[0]
 
 	for i := 1; i < len(slice); i++ {
-		heap = AddElem(heap, slice[i])
+		heap = Insert(heap, slice[i])
 	}
 
 	for i := 0; i < len(slice); i++ {
-		slice[i], heap = GetElem(heap)
+		slice[i], heap = ExtractMax(heap)
 	}
 
 	return slice

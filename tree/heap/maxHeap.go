@@ -4,6 +4,8 @@ package main
 
 MaxHeap
 
+Time Complexity: O(log N)
+
 Свойство: Каждый родитель ≥ своих потомков. Корень = максимум.
 
 Добавление элемента в max-heap:
@@ -24,6 +26,8 @@ MaxHeap
 
 Удаление корня (максимума) из max-heap:
 
+Time Complexity: O(log N)
+
 1) Сохранить корень: Запоминаем значение корневого элемента (это максимум)
 
 2) Заменить корень последним элементом: Берем последний элемент кучи и перемещаем его в корень
@@ -41,3 +45,86 @@ MaxHeap
 	- Повторяем для новой позиции, пока элемент не станет ≥ обоих потомков или не достигнет листа
 
 */
+
+
+// Insert добавляет новый элемент в max-heap
+func Insert(arr []int, value int) []int {
+    arr = append(arr, value)
+    siftUp(arr, len(arr) - 1)
+	return arr
+}
+
+// siftUp поднимает элемент вверх для восстановления свойства max-heap
+func siftUp(heap []int, index int) {
+    
+    for index  > 0 {
+        parent := (index - 1) / 2
+        
+        // Проверяем свойство max-heap
+        if heap[parent] >= heap[index] {
+            break
+        }
+        
+        // Обмен с родителем
+        heap[parent], heap[index] = heap[index], heap[parent]
+        index = parent
+    }
+}
+
+
+// Находит индекс максимального элемента среди родителя и двух потомков
+func findMaxIndex(heap []int, i, heapSize int) int {
+    maxIndex := i
+    left := 2*i + 1
+    right := 2*i + 2
+    
+    if left < heapSize && heap[left] > heap[maxIndex] {
+        maxIndex = left
+    }
+    
+    if right < heapSize && heap[right] > heap[maxIndex] {
+        maxIndex = right
+    }
+    
+    return maxIndex
+}
+
+// Просеивание элемента вниз (heapify down)
+func siftDown(heap []int, i int) []int {
+    heapSize := len(heap)
+    current := i
+    
+    for {
+        maxIndex := findMaxIndex(heap, current, heapSize)
+        
+        if maxIndex == current {
+            break
+        }
+        
+        heap[current], heap[maxIndex] = heap[maxIndex], heap[current]
+        current = maxIndex
+    }
+    
+    return heap
+}
+
+// Удаление корня из max-heap (корректная версия)
+func ExtractMax(heap []int) (int, []int) {
+    if len(heap) == 0 {
+        return -1, heap
+    }
+    
+    // Сохраняем максимальный элемент (корень)
+    max := heap[0]
+    
+    // Перемещаем последний элемент в корень
+    heap[0] = heap[len(heap)-1]
+    heap = heap[:len(heap)-1]
+    
+    // Просеиваем новый корень вниз
+    if len(heap) > 0 {
+        heap = siftDown(heap, 0)
+    }
+    
+    return max, heap
+}
